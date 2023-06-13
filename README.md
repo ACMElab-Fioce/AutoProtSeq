@@ -1,1 +1,1 @@
-# Algoritmos escritos em linguagem R para realização de análises globais
+# Algoritmos para automatização de protocolos de sequenciamento
