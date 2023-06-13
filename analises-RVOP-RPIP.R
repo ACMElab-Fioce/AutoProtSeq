@@ -8,7 +8,6 @@ library(ggmap)
 
 
 #Pega a base de dados e arruma pra ficar só as 5 maiores
-
 dados <- read.csv("dados_RVOP009.csv")
 df_temp <- data.frame(matrix(ncol = 0, nrow = 5))
 contador <- 1
@@ -33,7 +32,7 @@ write.table(df_temp, "output.tsv", sep="\t", row.names = FALSE)
 
 
 #-------------------------------------------------------------------------------
-#Pega a planilha, ajeita de uma foma específica e gera o gráfico de tudo junto bonitão
+#Pega a planilha e ajeita de uma forma específica
 
 dados <- read.table("output.tsv", sep="\t", header=TRUE)
 
@@ -59,7 +58,8 @@ new_dataset$my_class <- factor(new_dataset$my_class)
 new_dataset$frequencia <- as.numeric(new_dataset$frequencia)
 new_dataset <- transform(new_dataset, prop = frequencia / tapply(frequencia, my_class, sum)[my_class])
 
-#Gráfico
+#-------------------------------------------------------------------------------
+#Gráfico de proporção - amostras juntas
 ggplot(new_dataset) +
   aes(x = my_class, fill = variable, weight = frequencia) +
   scale_fill_manual(values = c("Influenza A virus" = "#74d600",
@@ -75,6 +75,22 @@ ggplot(new_dataset) +
   labs(x = "Amostras", y = "Frequência", fill = "Organismos mais relevantes", title = "Resultados RVOP Lote009") +
   theme_bw()
 
+#Gráfico de barras - amostras separadas
+ggplot(new_dataset, aes(x = variable, y = frequencia, fill = variable)) +
+  scale_fill_manual(values = c("Influenza A virus" = "#74d600",
+                               "Influenza B virus" = "#028900",
+                               "Rhinovirus A" = "#7fcdff",
+                               "Rhinovirus B" = "#1da2d8",
+                               "Rhinovirus C" = "#064273",
+                               "Severe acute respiratory syndrome-related coronavirus" = "#c30101",
+                               "Outros" = "#979aaa")) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ my_class, ncol = 2) +
+  labs(y = "Número de reads por milhão", fill = "Organismos mais relevantes:") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())
 
 
 
