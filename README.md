@@ -1,1 +1,5 @@
-# Automatizador (Auto) de protocolos (Prot) de sequenciamento multivariado (Seq)
+# Centrl de acesso e automatização de protocolos de sequenciamento
+
+##Protocolos contemplados:
+- Illumina Respiratory Virus Enrichment Kit (RVOP)
+- Respiratory Pathogen ID/AMR Enrichment Panel Kit (RPIP)
