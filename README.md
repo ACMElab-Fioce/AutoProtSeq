@@ -1,1 +1,1 @@
-# Algoritmos para automatização de protocolos de sequenciamento
+# Automatizador (Auto) de protocolos (Prot) de sequenciamento multivariado (Seq)
