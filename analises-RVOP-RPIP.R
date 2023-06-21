@@ -18,27 +18,24 @@ for (i in 2:ncol(dados)) {
   lista_nomes <- dados_ordenados[dados_ordenados[, i] %in% numero_reads, 1]
   dados_amostras <- data.frame(lista_nomes)
   nomes_amostras <- paste0(colnames(dados)[i], "_A", contador)
-  
   colnames(dados_amostras) <- nomes_amostras
   df_temp <- cbind(df_temp, dados_amostras)
-  
   df_temp <- cbind(df_temp, setNames(data.frame(numero_reads), paste0("numero_reads_A", contador)))
-  
   contador <- contador + 1
   print(dados_amostras)
 }
 
-write.table(df_temp, "output.tsv", sep="\t", row.names = FALSE)
+write.table(df_temp, "output.csv", sep=";", row.names = FALSE)
 
 
 #-------------------------------------------------------------------------------
-#Pega a planilha e ajeita de uma forma específica
+#Pega a planilha e ajeita de uma forma específica para as análises posteriore
 
-dados <- read.table("output.tsv", sep="\t", header=TRUE)
+dados <- read.table("output.csv", sep=";", header=TRUE)
 
 odd_columns <- colnames(dados)[seq(1, ncol(dados), by = 2)]
 samples <- unique(odd_columns)
-repetitions <- 5
+repetitions <- 10
 new_dataset <- data.frame(my_class = rep(samples, each = repetitions), stringsAsFactors = FALSE)
 
 #Organimsos de cada amostra
@@ -53,10 +50,12 @@ frequencia_data <- unlist(column_data)
 
 new_dataset$frequencia <- frequencia_data
 
-
 new_dataset$my_class <- factor(new_dataset$my_class)
+new_dataset$frequencia <- gsub("\\.", "", new_dataset$frequencia)
 new_dataset$frequencia <- as.numeric(new_dataset$frequencia)
 new_dataset <- transform(new_dataset, prop = frequencia / tapply(frequencia, my_class, sum)[my_class])
+
+new_dataset$my_class <- factor(new_dataset$my_class, levels = samples)
 
 #-------------------------------------------------------------------------------
 #Gráfico de proporção - amostras juntas
@@ -91,6 +90,7 @@ ggplot(new_dataset, aes(x = variable, y = frequencia, fill = variable)) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank())
+
 
 
 
