@@ -5,17 +5,23 @@ library(dplyr)
 library(ggrepel)
 library(tidyverse)
 library(ggmap) 
+library(tidyverse)
+library(forcats)
 
 
 #Pega a base de dados e arruma pra ficar só as 5 maiores
-dados <- read.csv("dados_RVOP009.csv")
+dados <- read.csv("planilha.csv")
+
+colunas <- sort(colnames(dados), decreasing = TRUE)
+dados <- dados[, colunas]
+
 df_temp <- data.frame(matrix(ncol = 0, nrow = 5))
 contador <- 1
 
 for (i in 2:ncol(dados)) {
   dados_ordenados <- dados[order(dados[, i], decreasing = TRUE), ]
   numero_reads <- head(dados_ordenados[, i], 5)
-  lista_nomes <- dados_ordenados[dados_ordenados[, i] %in% numero_reads, 1]
+  lista_nomes <- head(dados_ordenados$Taxon.Name, 5)
   dados_amostras <- data.frame(lista_nomes)
   nomes_amostras <- paste0(colnames(dados)[i], "_A", contador)
   colnames(dados_amostras) <- nomes_amostras
@@ -30,12 +36,11 @@ write.table(df_temp, "output.csv", sep=";", row.names = FALSE)
 
 #-------------------------------------------------------------------------------
 #Pega a planilha e ajeita de uma forma específica para as análises posteriore
-
 dados <- read.table("output.csv", sep=";", header=TRUE)
 
 odd_columns <- colnames(dados)[seq(1, ncol(dados), by = 2)]
 samples <- unique(odd_columns)
-repetitions <- 10
+repetitions <- 5
 new_dataset <- data.frame(my_class = rep(samples, each = repetitions), stringsAsFactors = FALSE)
 
 #Organimsos de cada amostra
@@ -57,39 +62,7 @@ new_dataset <- transform(new_dataset, prop = frequencia / tapply(frequencia, my_
 
 new_dataset$my_class <- factor(new_dataset$my_class, levels = samples)
 
-#-------------------------------------------------------------------------------
-#Gráfico de proporção - amostras juntas
-ggplot(new_dataset) +
-  aes(x = my_class, fill = variable, weight = frequencia) +
-  scale_fill_manual(values = c("Influenza A virus" = "#74d600",
-                               "Influenza B virus" = "#028900",
-                               "Rhinovirus A" = "#7fcdff",
-                               "Rhinovirus B" = "#1da2d8",
-                               "Rhinovirus C" = "#064273",
-                               "Severe acute respiratory syndrome-related coronavirus" = "#c30101",
-                               "Outros" = "#979aaa")) +
-  geom_bar(position = "fill") +
-  geom_text(aes(label = paste0(round(prop * 100), "%"), y = prop), position = position_fill(vjust = 0.5)) +
-  scale_x_discrete(labels = row.names(new_dataset)) +
-  labs(x = "Amostras", y = "Frequência", fill = "Organismos mais relevantes", title = "Resultados RVOP Lote009") +
-  theme_bw()
-
-#Gráfico de barras - amostras separadas
-ggplot(new_dataset, aes(x = variable, y = frequencia, fill = variable)) +
-  scale_fill_manual(values = c("Influenza A virus" = "#74d600",
-                               "Influenza B virus" = "#028900",
-                               "Rhinovirus A" = "#7fcdff",
-                               "Rhinovirus B" = "#1da2d8",
-                               "Rhinovirus C" = "#064273",
-                               "Severe acute respiratory syndrome-related coronavirus" = "#c30101",
-                               "Outros" = "#979aaa")) +
-  geom_bar(stat = "identity") +
-  facet_wrap(~ my_class, ncol = 2) +
-  labs(y = "Número de reads por milhão", fill = "Organismos mais relevantes:") +
-  theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank())
+write.table(new_dataset, "new_output.csv", sep=";", row.names = FALSE)
 
 
 
