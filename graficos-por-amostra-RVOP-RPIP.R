@@ -1,68 +1,101 @@
-library(scales)
-library(plotrix)
-library(ggplot2)
-library(dplyr)
-library(ggrepel)
-library(tidyverse)
-library(ggmap) 
+#Gráfico de proporção - amostras juntas
+new_dataset <- read.csv("new_output.csv", sep=";")
+grafico <- ggplot(new_dataset) +
+  aes(x = my_class, fill = variable, weight = frequencia) +
+  geom_bar(position = "fill") +
+  #geom_text(aes(label = paste0(round(prop * 100), "%"), y = prop), position = position_fill(vjust = 0.5)) +
+  scale_x_discrete(labels = row.names(new_dataset)) +
+  labs(x = "Amostras", y = "Frequência", fill = "Organismos mais relevantes", title = "Resultados RPIP Lote004 - Reads Totais") +
+  theme_bw() +
+  scale_fill_manual(values = c("Escherichia marmotae" = "#d896ff",
+                               "Rhodococcus sp. p52" = "#d896ff",
+                               "Sphingomonas echinoides" = "#d896ff",
+                               "Sphingomonas sp. AAP5" = "#d896ff",
+                               "Escherichia coli" = "#d896ff",
+                               "Aeromonas sp. ASNIH2" = "#d896ff",
+                               "Burkholderia" = "#be29ec",
+                               "Corynebacterium" = "#be29ec",
+                               "Acinetobacter" = "#be29ec",
+                               "Pseudomonas" = "#be29ec",
+                               "Stenotrophomonas maltophilia" = "#be29ec",
+                               "Klebsiella oxytoca" = "#be29ec",
+                               "Burkholderia stabilis" = "#be29ec",
+                               "Achromobacter xylosoxidans" = "#be29ec",
+                               "Moraxella osloensis" = "#be29ec",
+                               "Rothia dentocariosa" = "#be29ec",
+                               "Staphylococcus" = "#be29ec",
+                               "Ureaplasma parvum" = "#be29ec",
+                               "Ureaplasma sp." = "#be29ec",
+                               "Fusobacterium" = "#be29ec",
+                               "Delftia acidovorans" = "#be29ec",
+                               "Klebsiella variicola" = "#be29ec",
+                               "Rhodococcus" = "#be29ec",
+                               "Citrobacter koseri" = "#660066",
+                               "Klebsiella quasipneumoniae" = "#660066",
+                               "Staphylococcus aureus" = "#660066",
+                               "Streptococcus pneumoniae" = "#660066",
+                               "Klebsiella pneumoniae" = "#660066",
+                               "Salmonella" = "#660066",
+                               "Enterococcus faecium" = "#660066",
+                               "Proteus mirabilis" = "#660066",
+                               "Enterococcus faecalis" = "#660066",
+                               "Burkholderia cepacia" = "#660066",
+                               "Ureaplasma urealyticum" = "#660066",
+                               "Candida albicans" = "#66b2b2",
+                               "Candida tropicalis"= "#66b2b2",
+                               "Aspergillus sydowii"= "#66b2b2",
+                               "Acremonium sp. 11665 DLW-2010"= "#66b2b2",
+                               "Aspergillus sp."= "#66b2b2",
+                               "Influenza B virus" = "#4ebcff",
+                               "SARS-CoV-2" = "#ff0000",
+                               "Outros" = "#979aaa")) +
+                               
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.text = element_text(face = "bold", size = 12),
+    axis.title = element_text(face = "bold", size = 16),
+    legend.title = element_text(size = 10, face = "bold"),
+    legend.text = element_text(size = 8, face = "bold"),
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 8),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
 
 
-#Pega a base de dados e arruma pra ficar só as 5 maiores
+ggsave("RPIP004-NS-5-EXEMPLAR1.jpg", plot = grafico, width = 16, height = 8, dpi = 600)
 
-dados <- read.csv("combined_sample_taxon_results_NR.r.csv", sep=";")
-df_temp <- data.frame(matrix(ncol = 0, nrow = 5))
+#-------------------------------------------------------------------------------
 
-for (i in 2:ncol(dados)) {
-  dados_ordenados <- dados[order(dados[, i], decreasing = TRUE), ]
-  numero_reads <- head(dados_ordenados[, i], 5)
-  lista_nomes <- dados_ordenados[dados_ordenados[, i] %in% numero_reads, 1]
-  dados_amostras <- data.frame(lista_nomes)
-  nomes_amostras <- paste0(colnames(dados)[i], "_A", i-1)
-  
-  colnames(dados_amostras) <- nomes_amostras
-  df_temp <- cbind(df_temp, dados_amostras)
-  print(nomes_amostras)
-  df_temp <- cbind(df_temp, setNames(data.frame(numero_reads), paste0("numero_reads_A", i-1)))
-  df_taxon_reads <- cbind(dados_amostras, setNames(data.frame(numero_reads), paste0("numero_reads_A", i-1)))
-  # print(df_taxon_reads)
-  colnames(df_taxon_reads) <- c("taxon", "reads")
-  df_taxon_reads$reads_log10 <- log10(df_taxon_reads$reads)
-  
-  df_log <- df_taxon_reads %>%
-    mutate(csum = rev(cumsum(rev(reads_log10))),
-           pos = reads_log10/2 + lead(csum, 1),
-           pos = if_else(is.na(pos), reads_log10/2, pos),
-           perc = (reads_log10/sum(reads_log10))*100)
-  
-  ggplot(df_log, aes(x = "" , y = reads_log10, fill = fct_inorder(taxon))) +
-    geom_col(width = 1, color = 1) +
-    coord_polar(theta = "y") +
-    scale_fill_brewer(palette = "Pastel1") +
-    geom_label_repel(data = df_log,
-                     aes(y = pos, label = paste0(perc, "%")),
-                     size = 4.5, nudge_x = 1, show.legend = FALSE) +
-    guides(fill = guide_legend(title = "Taxons")) +
-    theme_void() +
-    theme(plot.background = element_rect(fill = "white"))+
-    labs(title = paste0(nomes_amostras,"_log10"))
-  ggsave(paste0(nomes_amostras,"_log10.png"), width = 20, height = 20, units = "cm")
-  df <- df_taxon_reads %>% 
-    mutate(csum = rev(cumsum(rev(reads))), 
-           pos = reads/2 + lead(csum, 1),
-           pos = if_else(is.na(pos), reads/2, pos),
-           perc = (reads/sum(reads))*100)
-  
-  ggplot(df, aes(x = "" , y = reads, fill = fct_inorder(taxon))) +
-    geom_col(width = 1, color = 1) +
-    coord_polar(theta = "y") +
-    scale_fill_brewer(palette = "Pastel1") +
-    geom_label_repel(data = df,
-                     aes(y = pos, label = paste0(perc, "%")),
-                     size = 4.5, nudge_x = 1, show.legend = FALSE) +
-    guides(fill = guide_legend(title = "Taxons")) +
-    theme_void()+
-    theme(plot.background = element_rect(fill = "white"))+
-    labs(title = nomes_amostras)
+
+new_dataset <- read.csv("new_output.csv", sep=";")
+new_dataset$patogen <- factor(new_dataset$patogen, levels= c("BAC_NAO_PAT", "BAC_POS_PAT", 
+                                                             "BAC_PAT", "FUN_NAO_PAT", "Influenza B virus", 
+                                                             "SARS-CoV-2"))
+#Gráfico de proporção - amostras juntas
+grafico <- ggplot(new_dataset) +
+  aes(x = my_class, fill = patogen, weight = frequencia) +
+  geom_bar(position = "fill") +
+  #geom_text(aes(label = paste0(round(prop * 100), "%"), y = prop), position = position_fill(vjust = 0.5)) +
+  scale_x_discrete(labels = row.names(new_dataset)) +
+  labs(x = "Amostras", y = "Frequência", fill = "Organismos mais relevantes", title = "Resultados MiSeq - RPIP Lote005") +
+  theme_bw() +
+  scale_fill_manual(values = c("BAC_NAO_PAT" = "#d896ff",
+                               "BAC_POS_PAT" = "#be29ec",
+                               "BAC_PAT" = "#660066",
+                               "FUN_NAO_PAT" = "#66b2b2",
+                               "Influenza B virus" = "#4ebcff",
+                               "SARS-CoV-2" = "#ff0000")) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.text = element_text(face = "bold", size = 12),
+    axis.title = element_text(face = "bold", size = 16),
+    legend.title = element_text(size = 8, face = "bold"),
+    legend.text = element_text(size = 6, face = "bold"),
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 8),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+
+ggsave("RPIP005-MS-EXEMPLAR1.png", plot = grafico, width = 16, height = 8, dpi = 600)
   ggsave(paste0(nomes_amostras,".png"), width = 20, height = 20, units = "cm")
   
 }
