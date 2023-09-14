@@ -304,43 +304,4 @@ grafico <- ggplot(new_dataset) +
     axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
 
 
-ggsave("RPIP004-NS-5-EXEMPLAR1.jpg", plot = grafico, width = 16, height = 8, dpi = 600)
-
-#-------------------------------------------------------------------------------
-
-
-new_dataset <- read.csv("new_output.csv", sep=";")
-new_dataset$patogen <- factor(new_dataset$patogen, levels= c("BAC_NAO_PAT", "BAC_POS_PAT", 
-                                                             "BAC_PAT", "FUN_NAO_PAT", "Influenza B virus", 
-                                                             "SARS-CoV-2"))
-#Gráfico de proporção - amostras juntas
-grafico <- ggplot(new_dataset) +
-  aes(x = my_class, fill = patogen, weight = frequencia) +
-  geom_bar(position = "fill") +
-  #geom_text(aes(label = paste0(round(prop * 100), "%"), y = prop), position = position_fill(vjust = 0.5)) +
-  scale_x_discrete(labels = row.names(new_dataset)) +
-  labs(x = "Amostras", y = "Frequência", fill = "Organismos mais relevantes", title = "Resultados MiSeq - RPIP Lote005") +
-  theme_bw() +
-  scale_fill_manual(values = c("BAC_NAO_PAT" = "#d896ff",
-                               "BAC_POS_PAT" = "#be29ec",
-                               "BAC_PAT" = "#660066",
-                               "FUN_NAO_PAT" = "#66b2b2",
-                               "Influenza B virus" = "#4ebcff",
-                               "SARS-CoV-2" = "#ff0000")) +
-  theme(
-    panel.border = element_rect(color = "black", fill = NA, size = 1),
-    axis.text = element_text(face = "bold", size = 12),
-    axis.title = element_text(face = "bold", size = 16),
-    legend.title = element_text(size = 8, face = "bold"),
-    legend.text = element_text(size = 6, face = "bold"),
-    axis.text.x = element_text(size = 8),
-    axis.text.y = element_text(size = 8),
-    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
-
-
-ggsave("RPIP005-MS-EXEMPLAR1.png", plot = grafico, width = 16, height = 8, dpi = 600)
-  ggsave(paste0(nomes_amostras,".png"), width = 20, height = 20, units = "cm")
-  
-}
-
-write.table(df_temp, "output.tsv", sep="\t", row.names = FALSE) #Resultado exportado
+ggsave("grafico.jpg", plot = grafico, width = 16, height = 8, dpi = 600)
