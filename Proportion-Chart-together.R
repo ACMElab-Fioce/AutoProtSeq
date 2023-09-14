@@ -76,7 +76,7 @@ grafico <- ggplot(new_dataset) +
                                "Fusobacterium necrophorum"= "#be29ec",
                                "Legionella longbeachae"= "#be29ec",
                                "Mycobacteroides immunogenum"= "#be29ec",
-                               Mycobacterium immunogenum"= "#be29ec",
+                               "Mycobacterium immunogenum"= "#be29ec",
                                "Aeromonas caviae"= "#be29ec",
                                "Brucella suis"= "#be29ec",
                                "Corynebacterium pseudodiphtheriticum"= "#be29ec",
