@@ -8,9 +8,10 @@ library(ggmap)
 library(tidyverse)
 library(forcats)
 
+setwd("C:/Users/pedro/OneDrive/Área de Trabalho/Pedro/extras/hibridização/vsp")
 
 #Pega a base de dados e arruma pra ficar só as 5 maiores
-dados <- read.csv("planilha.csv")
+dados <- read.csv("combined_sample_taxon_results_NR.r.csv", sep=';')
 
 colunas <- sort(colnames(dados), decreasing = TRUE)
 dados <- dados[, colunas]
