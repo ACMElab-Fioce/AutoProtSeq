@@ -1,0 +1,10 @@
+# listar todas as corridas de um perfil
+# Atente-se pois a corrida pode estar em um perfil diferente dentro de uma mesma conta
+
+bs run list
+
+# Cria um arquivo com algumas métricas relevantes da corrida
+# É possível que novas métricas sejam adicionadas
+
+bs run seqstats -i [RunID] | grep -E 't.PercentGtQ30|PercentPf|ReadsPfTotal|ReadsTotal' > metadados.[RunID].txt
+
